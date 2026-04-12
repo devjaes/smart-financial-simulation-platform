@@ -22,3 +22,13 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# AI tooling
+.superpowers/
+docs/superpowers/
+CLAUDE.md
+CLAUDE.local.md
+
+# Environment (never commit secrets; copy from .env.example)
+.env
+backend/.env

@@ -191,7 +191,7 @@ export default function Landing() {
                 <div className="grid gap-4">
             <motion.button
               type="button"
-              onClick={() => go('/admin')}
+              onClick={() => go('/login?role=admin')}
               whileHover={{ y: -4 }}
               whileTap={{ scale: 0.995 }}
               disabled={Boolean(leavingTo)}
@@ -202,7 +202,7 @@ export default function Landing() {
               style={{
                 background: 'rgba(255,255,255,0.98)',
                 borderColor:
-                  leavingTo === '/admin' ? '#16A34A' : 'rgba(2,6,23,0.10)',
+                  leavingTo === '/login?role=admin' ? '#16A34A' : 'rgba(2,6,23,0.10)',
               }}
             >
               <div
@@ -247,7 +247,7 @@ export default function Landing() {
                     boxShadow: '0 10px 30px rgba(0,0,0,0.18)',
                   }}
                 >
-                  Acceder como Administrador
+                  Acceder como Administrador →
                 </span>
               </div>
             </motion.button>
@@ -310,7 +310,7 @@ export default function Landing() {
                     boxShadow: '0 10px 30px rgba(0,0,0,0.18)',
                   }}
                 >
-                  Acceder como Cliente
+                  Simular como Cliente →
                 </span>
               </div>
             </motion.button>

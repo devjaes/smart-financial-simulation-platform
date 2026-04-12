@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
-import { Link, NavLink, Outlet } from 'react-router-dom'
+import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { useAuth } from '../../context/AuthContext.jsx'
 import { useInstitution } from '../../context/InstitutionalContext.jsx'
 
 const adminLinks = [
@@ -8,6 +9,7 @@ const adminLinks = [
   { to: '/admin/creditos', label: 'Tipos de crédito' },
   { to: '/admin/cobros', label: 'Cobros indirectos' },
   { to: '/admin/inversiones', label: 'Productos de inversión' },
+  { to: '/admin/solicitudes', label: 'Solicitudes de crédito' },
 ]
 
 const clientLinks = [
@@ -15,14 +17,28 @@ const clientLinks = [
   { to: '/cliente/simulacion', label: 'Simulación de crédito' },
   { to: '/cliente/inversion', label: 'Inversiones' },
   { to: '/cliente/historial', label: 'Historial' },
-  { to: '/cliente/solicitud', label: 'Solicitud en línea' },
+  { to: '/cliente/solicitud', label: 'Solicitud en línea', auth: true },
+  { to: '/cliente/solicitudes', label: 'Mis solicitudes', auth: true },
 ]
 
 export default function AppShell({ mode }) {
   const { profile } = useInstitution()
+  const { user, logout, isAuthenticated } = useAuth()
+  const navigate = useNavigate()
   const links = mode === 'admin' ? adminLinks : clientLinks
   const title = mode === 'admin' ? 'Panel administrador' : 'Portal cliente'
   const isAdmin = mode === 'admin'
+
+  const handleLogout = () => {
+    logout()
+    navigate(mode === 'admin' ? '/login' : '/cliente', { replace: true })
+  }
+
+  const displayName = user
+    ? user.nombres
+      ? `${user.nombres} ${user.apellidos || ''}`.trim()
+      : user.email
+    : ''
 
   return (
     <div className="flex min-h-dvh flex-col md:flex-row">
@@ -36,7 +52,7 @@ export default function AppShell({ mode }) {
             : 'border-b border-slate-200 bg-white md:border-b-0 md:border-r',
         ].join(' ')}
       >
-        <div className="flex flex-col gap-3 p-5">
+        <div className="flex h-full min-h-0 flex-col gap-3 p-5">
           <Link
             to="/"
             className={[
@@ -111,9 +127,41 @@ export default function AppShell({ mode }) {
                 }}
               >
                 {l.label}
+                {l.auth && !isAuthenticated && (
+                  <span className="ml-1.5 text-[10px] text-slate-400">🔒</span>
+                )}
               </NavLink>
             ))}
           </nav>
+
+          {/* User info / login section */}
+          <div className="mt-auto border-t border-slate-100 pt-4">
+            {isAuthenticated ? (
+              <>
+                <div className="mb-2 rounded-lg bg-slate-50 px-3 py-2">
+                  <p className="truncate text-sm font-medium text-slate-800">{displayName}</p>
+                  <p className="truncate text-xs text-slate-500">
+                    {user?.role === 'admin' ? 'Administrador' : user?.cedula || user?.email}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-red-600 transition hover:bg-red-50"
+                >
+                  Cerrar sesión
+                </button>
+              </>
+            ) : (
+              <Link
+                to="/login?role=client"
+                className="flex w-full items-center justify-center rounded-lg px-3 py-2 text-sm font-medium text-white transition"
+                style={{ backgroundColor: 'var(--sfici-primary)' }}
+              >
+                Iniciar sesión
+              </Link>
+            )}
+          </div>
         </div>
       </motion.aside>
 

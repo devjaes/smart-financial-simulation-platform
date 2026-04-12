@@ -7,6 +7,27 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id                String   @id @default(uuid())
+  email             String   @unique
+  passwordHash      String
+  role              String   @default("client") // "admin" | "client"
+  cedula            String?  @unique
+  nombres           String?
+  apellidos         String?
+  telefono          String?
+  fechaNacimiento   String?
+  direccion         String?
+  ciudadResidencia  String?
+  estadoCivil       String?
+  empresa           String?
+  antiguedadLaboral String?
+  ingresosMensuales Float?
+  egresosMensuales  Float?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
 model InstitutionalProfile {
   id             String   @id @default("default")
   nombre         String
@@ -75,3 +96,47 @@ model SimulationHistory {
   updatedAt   DateTime @updatedAt
 }
 
+model CreditRequest {
+  id                      String   @id
+  estado                  String   @default("Pendiente")
+  fechaCreacion           DateTime
+
+  cedula                  String
+  nombres                 String
+  apellidos               String
+  email                   String
+  telefono                String
+  direccion               String
+  ciudadResidencia        String
+  fechaNacimiento         String
+  estadoCivil             String
+  ingresosMensuales       Float
+  egresosMensuales        Float
+  antiguedadLaboral       String
+  empresa                 String
+
+  productoId              String
+  productoNombre          String
+  monto                   Float
+  plazoMeses              Int
+  periodicidad            String
+  metodoAmortizacion      String
+  totalPagar              Float
+  cuotaMensual            Float
+
+  docCedulaFrontal        String?
+  docCedulaTrasera        String?
+  docComprobanteIngresos  String?
+  docPlanillaServicios    String?
+  docDeclaracionImpuestos String?
+
+  selfieBase64            String?
+  biometriaScore          Float?
+  biometriaAprobada       Boolean  @default(false)
+
+  notasAsesor             String?
+  fechaRevision           DateTime?
+
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+}
