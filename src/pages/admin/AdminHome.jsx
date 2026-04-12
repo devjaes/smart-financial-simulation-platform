@@ -22,6 +22,11 @@ const cards = [
     title: 'Productos de inversión',
     desc: 'Ahorro programado, plazo fijo, certificados, etc.',
   },
+  {
+    to: '/admin/solicitudes',
+    title: 'Solicitudes de crédito',
+    desc: 'Revisión y gestión de solicitudes de crédito enviadas por clientes.',
+  },
 ]
 
 export default function AdminHome() {

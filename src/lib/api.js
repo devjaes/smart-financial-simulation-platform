@@ -4,11 +4,25 @@ function getBaseUrl() {
   return String(raw).replace(/\/+$/, '')
 }
 
-async function request(path, { method = 'GET', body } = {}) {
+function getToken() {
+  try {
+    return localStorage.getItem('sfici_token')
+  } catch {
+    return null
+  }
+}
+
+async function request(path, { method = 'GET', body, auth = true } = {}) {
   const url = `${getBaseUrl()}${path}`
+  const headers = {}
+  if (body) headers['Content-Type'] = 'application/json'
+  if (auth) {
+    const token = getToken()
+    if (token) headers['Authorization'] = `Bearer ${token}`
+  }
   const res = await fetch(url, {
     method,
-    headers: body ? { 'Content-Type': 'application/json' } : undefined,
+    headers,
     body: body ? JSON.stringify(body) : undefined,
   })
   if (!res.ok) {
@@ -28,15 +42,25 @@ async function request(path, { method = 'GET', body } = {}) {
 }
 
 export const api = {
-  health: () => request('/api/health'),
+  health: () => request('/api/health', { auth: false }),
 
-  getCatalog: () => request('/api/catalog'),
+  // Auth
+  login: (email, password) =>
+    request('/api/auth/login', { method: 'POST', body: { email, password }, auth: false }),
+  register: (data) =>
+    request('/api/auth/register', { method: 'POST', body: data, auth: false }),
+  getMe: () => request('/api/auth/me'),
+
+  // Catalog (GET is public)
+  getCatalog: () => request('/api/catalog', { auth: false }),
   putCatalog: (catalog) => request('/api/catalog', { method: 'PUT', body: catalog }),
 
-  getInstitutionProfile: () => request('/api/institution/profile'),
+  // Institution (GET is public)
+  getInstitutionProfile: () => request('/api/institution/profile', { auth: false }),
   putInstitutionProfile: (profile) =>
     request('/api/institution/profile', { method: 'PUT', body: profile }),
 
+  // History
   listHistory: (limit = 200) => request(`/api/history?limit=${encodeURIComponent(limit)}`),
   addHistory: (entry) => request('/api/history', { method: 'POST', body: entry }),
   patchHistoryStatus: (id, estado) =>
@@ -44,5 +68,11 @@ export const api = {
       method: 'PATCH',
       body: { estado },
     }),
-}
 
+  // Requests
+  createRequest: (data) => request('/api/requests', { method: 'POST', body: data }),
+  getRequests: (limit = 100) => request(`/api/requests?limit=${encodeURIComponent(limit)}`),
+  getRequest: (id) => request(`/api/requests/${encodeURIComponent(id)}`),
+  reviewRequest: (id, body) => request(`/api/requests/${encodeURIComponent(id)}/review`, { method: 'PATCH', body }),
+  getRequestsByCedula: (cedula) => request(`/api/requests/by-cedula/${encodeURIComponent(cedula)}`),
+}
