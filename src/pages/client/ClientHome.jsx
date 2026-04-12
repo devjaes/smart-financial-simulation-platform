@@ -1,14 +1,22 @@
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
+import { useAuth } from '../../context/AuthContext.jsx'
 import { useInstitution } from '../../context/InstitutionalContext.jsx'
 
 export default function ClientHome() {
   const { profile } = useInstitution()
+  const { user } = useAuth()
+
+  const displayName = user?.nombres
+    ? `${user.nombres} ${user.apellidos || ''}`.trim()
+    : null
 
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mx-auto max-w-3xl space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold text-slate-900">Bienvenido</h1>
+        <h1 className="text-2xl font-semibold text-slate-900">
+          {displayName ? `Bienvenido, ${displayName}` : 'Bienvenido'}
+        </h1>
         <p className="mt-2 text-slate-600">
           {profile.nombre} — {profile.lema}
         </p>
