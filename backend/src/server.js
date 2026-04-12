@@ -3,6 +3,7 @@ import { env } from './config/env.js'
 import { prisma } from './db/prisma.js'
 import { ensureCatalogSeeded } from './services/catalogService.js'
 import { getInstitutionProfile } from './services/institutionService.js'
+import { seedAdminUser } from './services/authService.js'
 
 const app = createApp()
 
@@ -10,6 +11,7 @@ async function bootstrap() {
   // warm up DB and ensure defaults exist
   await ensureCatalogSeeded()
   await getInstitutionProfile()
+  await seedAdminUser()
 }
 
 await bootstrap()

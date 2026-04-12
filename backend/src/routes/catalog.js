@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import { validateBody } from '../middleware/validate.js'
+import { requireRole } from '../middleware/authMiddleware.js'
 import { catalogUpsertSchema } from '../schemas/catalogSchemas.js'
 import { getCatalog, replaceCatalog } from '../services/catalogService.js'
 
@@ -13,11 +14,10 @@ catalogRouter.get('/', async (req, res, next) => {
   }
 })
 
-catalogRouter.put('/', validateBody(catalogUpsertSchema), async (req, res, next) => {
+catalogRouter.put('/', ...requireRole('admin'), validateBody(catalogUpsertSchema), async (req, res, next) => {
   try {
     res.json(await replaceCatalog(req.body))
   } catch (e) {
     next(e)
   }
 })
-
