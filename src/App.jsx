@@ -18,6 +18,10 @@ import InvestmentSimulation from './pages/client/InvestmentSimulation.jsx'
 import RequestFlow from './pages/client/RequestFlow.jsx'
 import RequestDetail from './pages/admin/RequestDetail.jsx'
 import RequestsAdmin from './pages/admin/RequestsAdmin.jsx'
+import InvestmentRequestFlow from './pages/client/InvestmentRequestFlow.jsx'
+import InvestmentRequestsAdmin from './pages/admin/InvestmentRequestsAdmin.jsx'
+import InvestmentRequestDetail from './pages/admin/InvestmentRequestDetail.jsx'
+import ClientInvestmentRequests from './pages/client/ClientInvestmentRequests.jsx'
 
 export default function App() {
   return (
@@ -42,6 +46,8 @@ export default function App() {
         <Route path="inversiones" element={<InvestmentProductsAdmin />} />
         <Route path="solicitudes" element={<RequestsAdmin />} />
         <Route path="solicitudes/:id" element={<RequestDetail />} />
+        <Route path="solicitudes-inversion" element={<InvestmentRequestsAdmin />} />
+        <Route path="solicitudes-inversion/:id" element={<InvestmentRequestDetail />} />
       </Route>
 
       {/* Client — public for simulations, auth required for personal data */}
@@ -53,6 +59,8 @@ export default function App() {
         {/* These require login — they handle personal client data */}
         <Route path="solicitud" element={<RequireAuth role="client"><RequestFlow /></RequireAuth>} />
         <Route path="solicitudes" element={<RequireAuth role="client"><ClientRequests /></RequireAuth>} />
+        <Route path="solicitud-inversion" element={<RequireAuth role="client"><InvestmentRequestFlow /></RequireAuth>} />
+        <Route path="solicitudes-inversion" element={<RequireAuth role="client"><ClientInvestmentRequests /></RequireAuth>} />
       </Route>
 
       {/* QR verification */}

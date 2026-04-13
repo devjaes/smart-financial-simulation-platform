@@ -1,0 +1,192 @@
+import { useEffect, useState } from 'react'
+import { useParams, Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
+import { api } from '../../lib/api.js'
+import { formatCurrency } from '../../lib/currency.js'
+import { useToast } from '../../components/ui/Toast.jsx'
+
+const ESTADOS = ['Pendiente', 'Observacion', 'En revision', 'Aprobado', 'Rechazado']
+
+export default function InvestmentRequestDetail() {
+  const { id } = useParams()
+  const toast = useToast()
+  const [req, setReq] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [estado, setEstado] = useState('')
+  const [notas, setNotas] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [docModal, setDocModal] = useState(null)
+
+  useEffect(() => {
+    api.getInvestmentRequest(id).then((data) => {
+      setReq(data)
+      setEstado(data?.estado || '')
+      setNotas(data?.notasAsesor || '')
+      setLoading(false)
+    }).catch(() => setLoading(false))
+  }, [id])
+
+  const handleSave = async () => {
+    setSaving(true)
+    try {
+      const updated = await api.reviewInvestmentRequest(id, { estado, notasAsesor: notas })
+      setReq(updated)
+      toast('Decisión guardada correctamente', 'success')
+    } catch {
+      toast('Error al guardar la decisión', 'error')
+    }
+    setSaving(false)
+  }
+
+  if (loading) return <div className="flex justify-center py-12"><div className="h-6 w-6 animate-spin rounded-full border-2 border-slate-300 border-t-sky-500" /></div>
+  if (!req) return <p className="text-sm text-slate-600">Solicitud no encontrada.</p>
+
+  const score = req.biometriaScore != null ? Math.round(req.biometriaScore * 100) : null
+  const nivelSimilitud = score == null ? null : score >= 45 ? 'Muy alto' : score >= 40 ? 'Alto' : score >= 33 ? 'Medio' : score >= 20 ? 'Bajo' : 'Muy bajo'
+
+  const documentos = [
+    { label: 'Cédula frontal', data: req.docCedulaFrontal },
+    { label: 'Cédula trasera', data: req.docCedulaTrasera },
+    { label: 'Selfie del cliente', data: req.selfieBase64 },
+    { label: 'Comprobante de ingresos', data: req.docComprobanteIngresos },
+    { label: 'Planilla de servicios', data: req.docPlanillaServicios },
+    { label: 'Declaración de impuestos', data: req.docDeclaracionImpuestos },
+  ].filter((d) => d.data)
+
+  const inputClass =
+    'mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition focus:border-emerald-300 focus:ring-4 focus:ring-emerald-500/10'
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+      <div className="flex items-center gap-3">
+        <Link to="/admin/solicitudes-inversion" className="text-sm text-sky-600 hover:underline">← Solicitudes de inversión</Link>
+        <h1 className="text-2xl font-semibold text-slate-900">Detalle de solicitud</h1>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Left column */}
+        <div className="space-y-5">
+          <div>
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500">Datos del cliente</h3>
+            <div className="mt-2 rounded-2xl border border-slate-200 bg-white p-4 text-sm shadow-sm ring-1 ring-slate-900/5 space-y-1">
+              <div><strong>Nombres:</strong> {req.nombres} {req.apellidos}</div>
+              <div><strong>Cédula:</strong> {req.cedula}</div>
+              <div><strong>Email:</strong> {req.email}</div>
+              <div><strong>Teléfono:</strong> {req.telefono}</div>
+              <div><strong>Dirección:</strong> {req.direccion}, {req.ciudadResidencia}</div>
+              <div><strong>Estado civil:</strong> {req.estadoCivil}</div>
+              <div><strong>Empresa:</strong> {req.empresa} ({req.antiguedadLaboral})</div>
+              <div><strong>Ingresos:</strong> {formatCurrency(req.ingresosMensuales)}/mes</div>
+              <div><strong>Egresos:</strong> {formatCurrency(req.egresosMensuales)}/mes</div>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500">Inversión solicitada</h3>
+            <div className="mt-2 rounded-2xl border border-slate-200 bg-white p-4 text-sm shadow-sm ring-1 ring-slate-900/5 space-y-1">
+              <div><strong>Producto:</strong> {req.productoNombre}</div>
+              <div><strong>Capital inicial:</strong> {formatCurrency(req.capitalInicial)}</div>
+              <div><strong>Plazo:</strong> {req.plazoMeses} meses</div>
+              <div><strong>Tipo de interés:</strong> {req.tipoInteres === 'simple' ? 'Simple' : 'Compuesto'}</div>
+              <div><strong>Capitalización:</strong> {req.capitalizacion}</div>
+              <div><strong>Aporte periódico:</strong> {formatCurrency(req.aportePeriodico)}</div>
+              <div><strong>Rendimiento total:</strong> {formatCurrency(req.rendimientoTotal)}</div>
+              <div><strong>Interés ganado:</strong> {formatCurrency(req.interesGanado)}</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right column */}
+        <div className="space-y-5">
+          <div>
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500">Validación biométrica</h3>
+            <div
+              className={[
+                'mt-2 rounded-2xl border p-4 shadow-sm ring-1 ring-slate-900/5',
+                req.biometriaAprobada ? 'border-emerald-200 bg-emerald-50/60' : 'border-amber-200 bg-amber-50/60',
+              ].join(' ')}
+            >
+              <div className="flex items-center gap-3">
+                {req.docCedulaFrontal && <img src={req.docCedulaFrontal} alt="Cédula" className="h-16 w-16 rounded-lg object-cover" />}
+                {req.selfieBase64 && <img src={req.selfieBase64} alt="Selfie" className="h-16 w-16 rounded-full object-cover" />}
+                <div className="text-sm">
+                  <p className="font-semibold" style={{ color: req.biometriaAprobada ? '#166534' : '#92400e' }}>
+                    {req.biometriaAprobada ? '✓ Aprobado' : '⚠ Observación'}
+                  </p>
+                  {nivelSimilitud != null && (
+                    <p style={{ color: req.biometriaAprobada ? '#15803d' : '#b45309' }}>
+                      Coincidencia: {nivelSimilitud}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500">Documentos</h3>
+            <div className="mt-2 space-y-2">
+              {documentos.map((d) => (
+                <div
+                  key={d.label}
+                  className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-slate-900/5"
+                >
+                  <span>{d.label}</span>
+                  <button
+                    type="button"
+                    className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-4 focus:ring-emerald-500/10"
+                    onClick={() => setDocModal(d)}
+                  >
+                    Ver
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500">Acción del asesor</h3>
+            <div className="mt-2 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm ring-1 ring-slate-900/5 space-y-3">
+              <label className="block text-sm">
+                <span className="text-slate-600">Cambiar estado</span>
+                <select className={inputClass} value={estado} onChange={(e) => setEstado(e.target.value)}>
+                  {ESTADOS.map((e) => <option key={e} value={e}>{e}</option>)}
+                </select>
+              </label>
+              <label className="block text-sm">
+                <span className="text-slate-600">Notas / observaciones</span>
+                <textarea className={inputClass} rows={3} value={notas} onChange={(e) => setNotas(e.target.value)} placeholder="Ingrese observaciones para el cliente..." />
+              </label>
+              <button
+                type="button"
+                disabled={saving}
+                className="rounded-lg px-5 py-2 text-sm font-medium text-white shadow-sm transition hover:brightness-95 disabled:opacity-50 focus:outline-none focus:ring-4 focus:ring-emerald-500/15"
+                style={{ backgroundColor: 'var(--sfici-primary)' }}
+                onClick={handleSave}
+              >
+                {saving ? 'Guardando...' : 'Guardar decisión'}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Document modal */}
+      {docModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={() => setDocModal(null)}>
+          <div className="max-h-[90vh] max-w-2xl overflow-auto rounded-2xl bg-white p-4 shadow-xl ring-1 ring-slate-900/10" onClick={(e) => e.stopPropagation()}>
+            <div className="mb-3 flex items-center justify-between">
+              <h3 className="font-medium">{docModal.label}</h3>
+              <button type="button" className="text-sm text-slate-500 hover:text-slate-800" onClick={() => setDocModal(null)}>Cerrar</button>
+            </div>
+            {docModal.data.startsWith('data:image') ? (
+              <img src={docModal.data} alt={docModal.label} className="max-w-full rounded-lg" />
+            ) : (
+              <iframe src={docModal.data} title={docModal.label} className="h-[70vh] w-full rounded-lg" />
+            )}
+          </div>
+        </div>
+      )}
+    </motion.div>
+  )
+}

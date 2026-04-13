@@ -39,6 +39,11 @@ const cards = [
     title: 'Solicitudes de crédito',
     desc: 'Revisión y gestión de solicitudes de crédito enviadas por clientes.',
   },
+  {
+    to: '/admin/solicitudes-inversion',
+    title: 'Solicitudes de inversión',
+    desc: 'Revisión y gestión de solicitudes de inversión enviadas por clientes.',
+  },
 ]
 
 const container = {

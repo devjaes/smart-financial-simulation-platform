@@ -75,4 +75,11 @@ export const api = {
   getRequest: (id) => request(`/api/requests/${encodeURIComponent(id)}`),
   reviewRequest: (id, body) => request(`/api/requests/${encodeURIComponent(id)}/review`, { method: 'PATCH', body }),
   getRequestsByCedula: (cedula) => request(`/api/requests/by-cedula/${encodeURIComponent(cedula)}`),
+
+  // Investment Requests
+  createInvestmentRequest: (data) => request('/api/investment-requests', { method: 'POST', body: data }),
+  getInvestmentRequests: (limit = 100) => request(`/api/investment-requests?limit=${encodeURIComponent(limit)}`),
+  getInvestmentRequest: (id) => request(`/api/investment-requests/${encodeURIComponent(id)}`),
+  reviewInvestmentRequest: (id, body) => request(`/api/investment-requests/${encodeURIComponent(id)}/review`, { method: 'PATCH', body }),
+  getInvestmentRequestsByCedula: (cedula) => request(`/api/investment-requests/by-cedula/${encodeURIComponent(cedula)}`),
 }

@@ -10,6 +10,7 @@ const adminLinks = [
   { to: '/admin/cobros', label: 'Cobros indirectos' },
   { to: '/admin/inversiones', label: 'Productos de inversión' },
   { to: '/admin/solicitudes', label: 'Solicitudes de crédito' },
+  { to: '/admin/solicitudes-inversion', label: 'Solicitudes de inversión' },
 ]
 
 const clientLinks = [
@@ -19,6 +20,8 @@ const clientLinks = [
   { to: '/cliente/historial', label: 'Historial', auth: true },
   { to: '/cliente/solicitud', label: 'Solicitud en línea', auth: true },
   { to: '/cliente/solicitudes', label: 'Mis solicitudes', auth: true },
+  { to: '/cliente/solicitud-inversion', label: 'Solicitud de inversión', auth: true },
+  { to: '/cliente/solicitudes-inversion', label: 'Mis inversiones', auth: true },
 ]
 
 export default function AppShell({ mode }) {
