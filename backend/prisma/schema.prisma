@@ -140,3 +140,49 @@ model CreditRequest {
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
 }
+
+model InvestmentRequest {
+  id                      String   @id
+  estado                  String   @default("Pendiente")
+  fechaCreacion           DateTime
+
+  cedula                  String
+  nombres                 String
+  apellidos               String
+  email                   String
+  telefono                String
+  direccion               String
+  ciudadResidencia        String
+  fechaNacimiento         String
+  estadoCivil             String
+  ingresosMensuales       Float
+  egresosMensuales        Float
+  antiguedadLaboral       String
+  empresa                 String
+
+  productoId              String
+  productoNombre          String
+  capitalInicial          Float
+  plazoMeses              Int
+  tipoInteres             String
+  capitalizacion          String
+  aportePeriodico         Float
+  rendimientoTotal        Float
+  interesGanado           Float
+
+  docCedulaFrontal        String?
+  docCedulaTrasera        String?
+  docComprobanteIngresos  String?
+  docPlanillaServicios    String?
+  docDeclaracionImpuestos String?
+
+  selfieBase64            String?
+  biometriaScore          Float?
+  biometriaAprobada       Boolean  @default(false)
+
+  notasAsesor             String?
+  fechaRevision           DateTime?
+
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+}

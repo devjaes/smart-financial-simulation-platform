@@ -4,6 +4,7 @@ import { catalogRouter } from './catalog.js'
 import { institutionRouter } from './institution.js'
 import { historyRouter } from './history.js'
 import { requestsRouter } from './requests.js'
+import { investmentRequestsRouter } from './investmentRequests.js'
 
 export const apiRouter = Router()
 
@@ -15,3 +16,4 @@ apiRouter.use('/catalog', catalogRouter)
 apiRouter.use('/institution', institutionRouter)
 apiRouter.use('/history', historyRouter)
 apiRouter.use('/requests', requestsRouter)
+apiRouter.use('/investment-requests', investmentRequestsRouter)
